@@ -34,7 +34,7 @@ namespace Library_Management_System.Controllers
 
 
         [HttpPost("IssueBook")]
-        public async Task<ActionResult> IssueBook(IssueModel issueModel)
+        public async Task<IssueModel> IssueBook(IssueModel issueModel)
         {
             IssueEntityDto issueEntity = new IssueEntityDto();
 
@@ -56,13 +56,13 @@ namespace Library_Management_System.Controllers
             model.MemberId = response.Resource.MemberId;
             model.IssueDate = response.Resource.IssueDate;
             model.ReturnDate = response.Resource.ReturnDate;
-            model.IsReturned = response.Resource.IsReturned;
+            model.IsReturned = true;
 
-            return Ok(model);
+            return model;
         }
 
         [HttpGet("GetIssueByUId/{UId}")]
-        public async Task<ActionResult<IssueModel>> GetIssueByUId(string UId)
+        public async Task<IssueModel> GetIssueByUId(string UId)
         {
             var issueEntity = container.GetItemLinqQueryable<IssueEntityDto>(true)
                 .Where(x => x.UId == UId).FirstOrDefault();
@@ -74,14 +74,14 @@ namespace Library_Management_System.Controllers
             model.MemberId = issueEntity.MemberId;
             model.IssueDate = issueEntity.IssueDate;
             model.ReturnDate = issueEntity.ReturnDate;
-            model.IsReturned = issueEntity.IsReturned;
+            model.IsReturned = true;
             
 
-            return Ok(model);
+            return model;
         }
 
         [HttpPut("UpdateIssue/{UId}")]
-        public async Task<IActionResult> UpdateIssue(string UId, IssueModel updatedIssue)
+        public async Task<IssueModel> UpdateIssue(string UId, IssueModel updatedIssue)
         {
             var issueEntity = container.GetItemLinqQueryable<IssueEntityDto>(true)
                 .Where(x => x.UId == UId).FirstOrDefault();
@@ -94,7 +94,7 @@ namespace Library_Management_System.Controllers
 
             await container.ReplaceItemAsync(issueEntity, issueEntity.id);
 
-            return Ok(updatedIssue);
+            return updatedIssue;
         }
     }
 

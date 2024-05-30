@@ -34,7 +34,7 @@ namespace Library_Management_System.Controllers
         }
 
         [HttpPost("AddBookToTheLibrary")]
-        public async Task<ActionResult> AddBookToTheLibrary(BookModel bookModel)
+        public async Task<BookModel> AddBookToTheLibrary(BookModel bookModel)
         {
             BookEntityDto book = new BookEntityDto();
 
@@ -55,7 +55,7 @@ namespace Library_Management_System.Controllers
             model.ISBN = response.Resource.ISBN;
             model.IsIssued = true;
 
-            return Ok(model);
+            return model;
 
         }
 
@@ -80,7 +80,8 @@ namespace Library_Management_System.Controllers
         [HttpGet("RetrieveBookByName")]
         public async Task<BookModel> RetrieveBookByName(string name)
         {
-            var bookName= container.GetItemLinqQueryable<BookModel>(true).Where(x=>x.Title==name).FirstOrDefault();
+            var bookName= container.GetItemLinqQueryable<BookModel>(true).Where
+                (x=>x.Title==name).FirstOrDefault();
 
             BookModel model= new BookModel();
 
@@ -119,7 +120,7 @@ namespace Library_Management_System.Controllers
         }
 
         [HttpGet("RetrieveAllNotIssueBooks")]
-        public async Task<ActionResult<List<BookModel>>> RetrieveAllNotIssueBooks()
+        public async Task<List<BookModel>> RetrieveAllNotIssueBooks()
         {
             var availableBooks = container.GetItemLinqQueryable<BookEntityDto>(true)
                 .Where(book => !book.IsIssued).ToList();
@@ -134,12 +135,12 @@ namespace Library_Management_System.Controllers
                 IsIssued = book.IsIssued
             }).ToList();
 
-            return Ok(books);
+            return books;
         }
 
 
         [HttpGet("RetrieveAllIssuedBooks")]
-        public async Task<ActionResult<List<BookModel>>> RetrieveAllIssuedBooks()
+        public async Task<List<BookModel>> RetrieveAllIssuedBooks()
         {
             var issuedBooks = container.GetItemLinqQueryable<BookEntityDto>(true)
                 .Where(book => book.IsIssued).ToList();
@@ -154,11 +155,11 @@ namespace Library_Management_System.Controllers
                 IsIssued = book.IsIssued
             }).ToList();
 
-            return Ok(books);
+            return books;
         }
 
         [HttpPut("UpdateBook/{UId}")]
-        public async Task<IActionResult> UpdateBook(string UId, BookModel updatedBook)
+        public async Task<BookModel> UpdateBook(string UId, BookModel updatedBook)
         {
             var book = container.GetItemLinqQueryable<BookEntityDto>(true)
                 .Where(x => x.UId == UId).FirstOrDefault();
@@ -171,7 +172,7 @@ namespace Library_Management_System.Controllers
 
             await container.ReplaceItemAsync(book, book.id);
 
-            return Ok(updatedBook);
+            return updatedBook;
         }
     }
 

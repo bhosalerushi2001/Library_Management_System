@@ -33,7 +33,7 @@ namespace Library_Management_System.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<MemberModel>> Addnewmember( MemberModel newMembers)
+        public async Task<MemberModel> Addnewmember( MemberModel newMembers)
         {
             string newUId = Guid.NewGuid().ToString();
 
@@ -56,7 +56,7 @@ namespace Library_Management_System.Controllers
             ResponseModel.DateOfBirth = response.Resource.DateOfBirth;
             
 
-            return Ok(ResponseModel);
+            return ResponseModel;
         }
 
 
@@ -101,7 +101,7 @@ namespace Library_Management_System.Controllers
 
 
            [HttpPut("UpdateMember")]
-           public async Task<IActionResult> UpdateMember(string UId,  MemberModel updatedMember)
+           public async Task<MemberModel> UpdateMember(string UId,  MemberModel updatedMember)
            {
 
                var member = container.GetItemLinqQueryable<MemberEntityDto>(true)
@@ -113,7 +113,7 @@ namespace Library_Management_System.Controllers
 
                await container.ReplaceItemAsync(member, member.id);
 
-               return Ok(updatedMember);
+               return updatedMember;
            }
           
 
