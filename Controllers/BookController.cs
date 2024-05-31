@@ -1,4 +1,5 @@
 ﻿using Library_Management_System.Entity;
+using Library_Management_System.EntityDto;
 using Library_Management_System.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -174,6 +175,164 @@ namespace Library_Management_System.Controllers
 
             return updatedBook;
         }
+
+
+        //issueController
+
+
+        [HttpPost("IssueBook")]
+        public async Task<IssueModel> IssueBook(IssueModel issueModel)
+        {
+            IssueEntityDto issueEntity = new IssueEntityDto();
+
+            issueEntity.id = Guid.NewGuid().ToString();
+            issueEntity.UId = Guid.NewGuid().ToString();
+            issueEntity.BookId = issueModel.BookId;
+            issueEntity.MemberId = issueModel.MemberId;
+            issueEntity.IssueDate = issueModel.IssueDate;
+            issueEntity.ReturnDate = issueModel.ReturnDate;
+            issueEntity.IsReturned = issueModel.IsReturned;
+
+
+            ItemResponse<IssueEntityDto> response = await container.CreateItemAsync(issueEntity);
+
+            IssueModel model = new IssueModel();
+
+            model.UId = response.Resource.UId;
+            model.BookId = response.Resource.BookId;
+            model.MemberId = response.Resource.MemberId;
+            model.IssueDate = response.Resource.IssueDate;
+            model.ReturnDate = response.Resource.ReturnDate;
+            model.IsReturned = true;
+
+            return model;
+        }
+
+        [HttpGet("GetIssueByUId/{UId}")]
+        public async Task<IssueModel> GetIssueByUId(string UId)
+        {
+            var issueEntity = container.GetItemLinqQueryable<IssueEntityDto>(true)
+                .Where(x => x.UId == UId).FirstOrDefault();
+
+            IssueModel model = new IssueModel();
+
+            model.UId = issueEntity.UId;
+            model.BookId = issueEntity.BookId;
+            model.MemberId = issueEntity.MemberId;
+            model.IssueDate = issueEntity.IssueDate;
+            model.ReturnDate = issueEntity.ReturnDate;
+            model.IsReturned = true;
+
+
+            return model;
+        }
+
+        [HttpPut("UpdateIssue/{UId}")]
+        public async Task<IssueModel> UpdateIssue(string UId, IssueModel updatedIssue)
+        {
+            var issueEntity = container.GetItemLinqQueryable<IssueEntityDto>(true)
+                .Where(x => x.UId == UId).FirstOrDefault();
+
+            issueEntity.BookId = updatedIssue.BookId;
+            issueEntity.MemberId = updatedIssue.MemberId;
+            issueEntity.IssueDate = updatedIssue.IssueDate;
+            issueEntity.ReturnDate = updatedIssue.ReturnDate;
+            issueEntity.IsReturned = updatedIssue.IsReturned;
+
+            await container.ReplaceItemAsync(issueEntity, issueEntity.id);
+
+            return updatedIssue;
+        }
+
+
+
+        //MemberController
+
+        [HttpPost]
+        public async Task<MemberModel> Addnewmember(MemberModel newMembers)
+        {
+            string newUId = Guid.NewGuid().ToString();
+
+            MemberEntityDto member = new MemberEntityDto();
+
+            member.id = newUId;
+            member.UId = newUId;
+            member.Name = newMembers.Name;
+            member.DateOfBirth = newMembers.DateOfBirth;
+            member.Email = newMembers.Email;
+
+
+            ItemResponse<MemberEntityDto> response = await container.CreateItemAsync(member);
+
+            MemberModel ResponseModel = new MemberModel();
+
+            ResponseModel.UId = member.UId;
+            ResponseModel.Name = response.Resource.Name;
+            ResponseModel.Email = response.Resource.Email;
+            ResponseModel.DateOfBirth = response.Resource.DateOfBirth;
+
+
+            return ResponseModel;
+        }
+
+
+
+
+        [HttpGet("RetrieveMemberById/{UId}")]
+        public async Task<MemberModel> RetrieveMemberById(string UId)
+        {
+            var member = container.GetItemLinqQueryable<MemberEntityDto>(true).
+                Where(x => x.UId == UId).FirstOrDefault();
+
+            MemberModel memberModel = new MemberModel();
+            memberModel.Name = member.Name;
+            memberModel.Email = member.Email;
+            memberModel.DateOfBirth = member.DateOfBirth;
+
+            return memberModel;
+
+        }
+
+
+        [HttpGet("GetAllMembers")]
+        public async Task<List<MemberModel>> GetAllMembers()
+        {
+            var members = container.GetItemLinqQueryable<MemberEntityDto>(true).ToList();
+
+            List<MemberModel> listOfMembers = new List<MemberModel>();
+
+            foreach (var member in members)
+            {
+                MemberModel Model = new MemberModel();
+                Model.Name = member.Name;
+                Model.Email = member.Email;
+                Model.DateOfBirth = member.DateOfBirth;
+
+                listOfMembers.Add(Model);
+
+            }
+            return listOfMembers;
+
+        }
+
+
+        [HttpPut("UpdateMember")]
+        public async Task<MemberModel> UpdateMember(string UId, MemberModel updatedMember)
+        {
+
+            var member = container.GetItemLinqQueryable<MemberEntityDto>(true)
+                .Where(x => x.UId == UId).FirstOrDefault();
+
+            member.Name = updatedMember.Name;
+            member.DateOfBirth = updatedMember.DateOfBirth;
+            member.Email = updatedMember.Email;
+
+            await container.ReplaceItemAsync(member, member.id);
+
+            return updatedMember;
+        }
+
+
     }
 
 
